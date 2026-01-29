@@ -68,7 +68,9 @@ pipeline {
             //checkout scm
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
-                    git --version
+                    git --versiongit config --global --add safe.directory ${WORKSPACE}
+
+                    
                     git config --global user.email "knrn23@gmail.com"
                 git config --global user.name "Rahul Nigam"
 
