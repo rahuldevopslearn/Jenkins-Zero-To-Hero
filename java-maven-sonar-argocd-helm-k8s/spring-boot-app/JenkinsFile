@@ -15,7 +15,7 @@ pipeline {
     stage('Check maven and Java Version'){
     steps{
     sh '''
-    echo "this is tough"
+    echo "this is gh"
     java -version
     mvn -version
     '''
