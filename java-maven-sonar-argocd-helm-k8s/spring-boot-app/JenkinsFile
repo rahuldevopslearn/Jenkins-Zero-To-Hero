@@ -82,16 +82,16 @@ pipeline {
                 cd ${WORKSPACE}/manifests
 
                 echo "Before update:"
-                cat deployment.yml
+                cat manifest-files/deployment.yaml
 
-                # update the image tag to BUILD_NUMBER
-                sed -i -E "s|(image:.*:)[0-9]+|\\1${BUILD_NUMBER}|" deployment.yml
+                sed -i -E "s|(image:.*:)[0-9]+|\\1${BUILD_NUMBER}|" manifest-files/deployment.yaml
 
                 echo "After update:"
-                cat deployment.yml
+                cat manifest-files/deployment.yaml
 
-                git add deployment.yml
+                git add manifest-files/deployment.yaml
                 git diff --cached --quiet || git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                
                 git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:${MANIFEST_REPO_BRANCH}
           """
 
