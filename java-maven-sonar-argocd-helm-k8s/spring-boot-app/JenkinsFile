@@ -9,10 +9,12 @@ pipeline {
   stages {
 
     stage('Check maven and Java Version'){
+    steps{
     sh '''
     java -version
     mvn -version
     '''
+  }
    }
     stage('Checkout') {
       steps {
