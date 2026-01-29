@@ -36,7 +36,7 @@ pipeline {
     }
     stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://3.90.253.80:9000"
+        SONAR_URL = "http://54.173.169.218:9000"
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
@@ -62,33 +62,38 @@ pipeline {
     }
     stage('Update Deployment File') {
         environment {
-            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-            GIT_USER_NAME = "rahuldevopslearn"
+            GIT_REPO_NAME = "k8s-deployments"           // the manifests repo
+        GIT_USER_NAME = "rahuldevopslearn"
+        MANIFEST_REPO_BRANCH = "main"
+
         }
         steps {
             //checkout scm
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh """
-                # make sure git trusts this workspace
+                          sh """
                 git config --global --add safe.directory ${WORKSPACE}
                 git config --global user.email "knrn23@gmail.com"
                 git config --global user.name "Rahul Nigam"
 
-                cd ${WORKSPACE}
+                # clone the manifests repo into a temporary folder
+                rm -rf ${WORKSPACE}/manifests
+                git clone https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git ${WORKSPACE}/manifests
+
+                cd ${WORKSPACE}/manifests
 
                 echo "Before update:"
-                cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                cat deployment.yml
 
                 # update the image tag to BUILD_NUMBER
-                sed -i 's/\\(image:.*:\\)[0-9]\\+/\\1${BUILD_NUMBER}/' java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                sed -i -E "s|(image:.*:)[0-9]+|\\1${BUILD_NUMBER}|" deployment.yml
 
                 echo "After update:"
-                cat java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                cat deployment.yml
 
-                git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                git add deployment.yml
                 git diff --cached --quiet || git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-            """
+                git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:${MANIFEST_REPO_BRANCH}
+          """
 
             }
         }
