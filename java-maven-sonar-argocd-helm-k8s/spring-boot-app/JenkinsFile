@@ -15,7 +15,7 @@ pipeline {
     stage('Check maven and Java Version'){
     steps{
     sh '''
-    echo "I am working hard i will be selected in incedo"
+    echo "I am working hard i will be selected in incedo, definitely"
     java -version
     mvn -version
     '''
